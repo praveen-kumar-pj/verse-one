@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - Verse One</title>
+    <link rel="icon" type="image/png" href="assets/verseone logo.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="assets/verseone logo.png" alt="Verse One Logo" class="site-logo">
+            <div class="header-text">
+                <h1>Verse One</h1>
+                <p class="tagline">God's Word for Your Home</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="cart.html" class="active">Cart <span id="cart-count" style="display: none; background: var(--color-sky-blue); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8rem; margin-left: 5px;"></span></a>
+        <a href="admin-login.html">Admin</a>
+    </nav>
+
+    <div class="container">
+        <div class="cart-container">
+            <h2>Your Cart</h2>
+            
+            <div id="cart-items-container">
+                <!-- Cart items will be loaded here -->
+            </div>
+            
+            <div id="cart-summary-container">
+                <!-- Cart summary will be loaded here -->
+            </div>
+            
+            <div class="whatsapp-notice" id="whatsapp-notice" style="display: none;">
+                <div class="whatsapp-notice-icon">💬</div>
+                <div class="whatsapp-notice-content">
+                    <h4>To confirm your order, please complete the process and continue on WhatsApp.</h4>
+                    <p>Our team will confirm your order and provide further updates via WhatsApp.</p>
+                </div>
+            </div>
+            
+            <div id="checkout-form-container" class="checkout-form">
+                <h3>Checkout Information</h3>
+                <form id="checkout-form">
+                    <div class="form-group">
+                        <label for="customer-name">Name *</label>
+                        <input type="text" id="customer-name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-phone">Phone Number *</label>
+                        <input type="tel" id="customer-phone" name="phone" required pattern="[0-9]{10}" placeholder="10 digit mobile number">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-email">Email *</label>
+                        <input type="email" id="customer-email" name="email" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                        Complete Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Float Button -->
+    <a href="#" id="whatsapp-float" class="whatsapp-float" aria-label="Contact us on WhatsApp">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 0C7.163 0 0 7.163 0 16c0 2.825.744 5.477 2.044 7.771L0 32l8.434-2.044C10.603 31.256 13.163 32 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.163c-2.372 0-4.6-.62-6.539-1.704l-.451-.225-4.718 1.146 1.146-4.718-.225-.451C4.478 20.603 3.86 18.372 3.86 16 3.86 9.172 9.172 3.86 16 3.86S28.14 9.172 28.14 16 22.828 28.14 16 28.163zm8.785-10.758c-.248-.124-1.472-.726-1.7-.81-.228-.083-.393-.124-.558.124-.165.248-.64.81-.785.977-.144.166-.289.186-.537.062-.248-.124-1.048-.386-1.996-1.231-.738-.658-1.237-1.472-1.382-1.72-.144-.248-.015-.383.108-.507.112-.112.248-.289.372-.434.124-.144.165-.248.248-.414.083-.165.041-.31-.02-.434-.062-.124-.558-1.345-.765-1.844-.2-.488-.404-.422-.558-.431-.144-.009-.31-.009-.476-.009s-.434.062-.662.31c-.228.248-.871.851-1.062 1.086-.165.227-.331.477-.041.773.248.248 1.062 1.014 1.278 1.214.165.165.289.248.496.434.248.227.496.441.714.714.186.248.372.537.166.977-.2.434-.931 1.741-1.278 2.341-.331.578-.662 1.124-1.052 1.062-.248-.031-.434-.124-.931-.434-.496-.31-1.082-.558-1.526-.931-.496-.434-1.062-.977-1.701-1.557-.62-.558-1.237-1.146-1.701-1.926-.465-.785-.931-2.117.062-2.956.62-.558 1.382-1.31 1.926-1.557.496-.207.931-.165 1.237.062.31.227.931.744 1.052 1.086.124.331.124.931-.124 1.472-.248.558-1.052 1.926-1.237 2.117-.165.165-.331.248-.062.496.248.248 1.052 1.214 1.278 1.462.186.207.434.537.558.744.124.207.186.331.062.496-.124.165-.248.248-.434.331-.186.083-.434.165-.558.186-.124.02-.248.124-.331.248-.083.124-.041.289.062.434.103.144.434.744.931 1.214.579.579 1.062.977 1.526 1.278.496.331 1.052.558 1.527.931.496.372.558.434.744.744.165.289.248.434.558.744.372.372.931.931 1.701 1.146.744.207 1.31.165 1.557.124.248-.041.931-.496 1.062-1.052.124-.558.124-1.052.062-1.214-.062-.165-.165-.248-.372-.372z"/>
+        </svg>
+    </a>
+
+    <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/orders.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // WhatsApp phone number (update this with actual number)
+        const WHATSAPP_PHONE = '8682892798';
+        
+        function loadCartItems() {
+            const items = getCartItemsWithDetails();
+            const container = document.getElementById('cart-items-container');
+            const summaryContainer = document.getElementById('cart-summary-container');
+            const checkoutForm = document.getElementById('checkout-form-container');
+            
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>Your cart is empty</h3><p><a href="index.html" class="btn btn-primary">Continue Shopping</a></p></div>';
+                summaryContainer.innerHTML = '';
+                checkoutForm.style.display = 'none';
+                const whatsappNotice = document.getElementById('whatsapp-notice');
+                if (whatsappNotice) {
+                    whatsappNotice.style.display = 'none';
+                }
+                return;
+            }
+            
+            checkoutForm.style.display = 'block';
+            
+            // Show WhatsApp notice
+            const whatsappNotice = document.getElementById('whatsapp-notice');
+            if (whatsappNotice) {
+                whatsappNotice.style.display = 'flex';
+            }
+            
+            // Display cart items
+            container.innerHTML = items.map(item => {
+                const imageSrc = item.imagePath || item.image || '';
+                return `
+                <div class="cart-item">
+                    <img src="${imageSrc}" alt="${item.title}" class="cart-item-image" onerror="this.style.display='none'">
+                    <div class="cart-item-info">
+                        <h3 class="cart-item-title">${escapeHtml(item.title)}</h3>
+                        <p class="product-verse">"${escapeHtml(item.verseText)}"</p>
+                        <p class="cart-item-price">${formatPrice(item.price)} each</p>
+                    </div>
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn" onclick="decreaseQuantity('${item.id}')">−</button>
+                        <input type="number" class="quantity-input" value="${item.quantity}" min="1" 
+                               onchange="updateQuantity('${item.id}', this.value)">
+                        <button class="quantity-btn" onclick="increaseQuantity('${item.id}')">+</button>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeItem('${item.id}')">Remove</button>
+                </div>
+                `;
+            }).join('');
+            
+            // Display cart summary
+            const total = getCartTotal();
+            summaryContainer.innerHTML = `
+                <div class="cart-summary">
+                    <h3>Order Summary</h3>
+                    <p style="text-align: right; margin-top: 1rem; font-size: 1.2rem;">
+                        <strong>Total: <span class="cart-total">${formatPrice(total)}</span></strong>
+                    </p>
+                </div>
+            `;
+            
+            updateCartCount();
+        }
+        
+        function increaseQuantity(productId) {
+            const items = getCartItemsWithDetails();
+            const item = items.find(i => i.id === productId);
+            if (item) {
+                updateCartQuantity(productId, item.quantity + 1);
+                loadCartItems();
+            }
+        }
+        
+        function decreaseQuantity(productId) {
+            const items = getCartItemsWithDetails();
+            const item = items.find(i => i.id === productId);
+            if (item && item.quantity > 1) {
+                updateCartQuantity(productId, item.quantity - 1);
+                loadCartItems();
+            }
+        }
+        
+        function updateQuantity(productId, quantity) {
+            updateCartQuantity(productId, parseInt(quantity));
+            loadCartItems();
+        }
+        
+        function removeItem(productId) {
+            if (confirm('Remove this item from cart?')) {
+                removeFromCart(productId);
+                loadCartItems();
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Handle checkout form submission
+        document.getElementById('checkout-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const name = formData.get('name');
+            const phone = formData.get('phone');
+            const email = formData.get('email');
+            
+            const items = getCartItemsWithDetails();
+            const total = getCartTotal();
+            
+            // Generate WhatsApp message
+            let message = `📖 Verse One – Order Summary\n\n`;
+            message += `Name: ${name}\n`;
+            message += `Phone: ${phone}\n`;
+            message += `Email: ${email}\n\n`;
+            message += `Ordered Boards:\n`;
+            items.forEach(item => {
+                const rating = item.rating || 0;
+                message += `\nProduct: ${item.title}\n`;
+                message += `Size: ${item.size || 'N/A'}\n`;
+                message += `Price: ${formatPrice(item.price)}\n`;
+                message += `Rating: ${'⭐'.repeat(rating)}${'☆'.repeat(5 - rating)}\n`;
+                message += `Quantity: ${item.quantity}\n`;
+            });
+            message += `\nTotal: ${formatPrice(total)}\n\n`;
+            message += `Please confirm your order on WhatsApp.`;
+            
+            // Save order to localStorage (for CSV and admin)
+            const orderItems = items.map(item => ({
+                title: item.title,
+                category: item.category || 'N/A',
+                quantity: item.quantity,
+                price: item.price,
+                totalPrice: item.totalPrice
+            }));
+            
+            addOrder({
+                customerName: name,
+                phone: phone,
+                email: email,
+                items: orderItems
+            });
+            
+            // Encode message for URL
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/91${WHATSAPP_PHONE}?text=${encodedMessage}`;
+            
+            // Show success message
+            const container = document.querySelector('.cart-container');
+            const successDiv = document.createElement('div');
+            successDiv.className = 'message message-success';
+            successDiv.innerHTML = '<h3>Your order has been recorded!</h3><p>Our team will confirm your order via WhatsApp.</p><p><a href="' + whatsappUrl + '" target="_blank" class="btn btn-gold" style="margin-top: 1rem;">Open WhatsApp</a></p>';
+            
+            container.insertBefore(successDiv, container.firstChild);
+            
+            // Clear cart
+            clearCart();
+            
+            // Hide form and reload cart (which will show empty state)
+            setTimeout(() => {
+                loadCartItems();
+            }, 100);
+        });
+        
+        // Load cart on page load
+        document.addEventListener('DOMContentLoaded', loadCartItems);
+    </script>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2026 Verse One. All Rights Reserved.</p>
+            <p class="footer-tagline">Serving God's Word with Faith & Purpose.</p>
+        </div>
+    </footer>
+</body>
+</html>

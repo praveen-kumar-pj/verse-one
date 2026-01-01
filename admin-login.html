@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Verse One</title>
+    <link rel="icon" type="image/png" href="assets/verseone logo.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="assets/verseone logo.png" alt="Verse One Logo" class="site-logo">
+            <div class="header-text">
+                <h1>Verse One</h1>
+                <p class="tagline">God's Word for Your Home</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="cart.html">Cart</a>
+        <a href="admin-login.html" class="active">Admin</a>
+    </nav>
+
+    <div class="login-container">
+        <h2>Admin Login</h2>
+        
+        <div id="login-error" style="display: none;" class="login-error"></div>
+        
+        <form id="login-form" class="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                Login
+            </button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="index.html" style="color: var(--color-olive); text-decoration: none;">← Back to Store</a>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Redirect if already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            redirectIfLoggedIn();
+        });
+        
+        // Handle login form submission
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const username = formData.get('username');
+            const password = formData.get('password');
+            
+            const errorDiv = document.getElementById('login-error');
+            
+            if (login(username, password)) {
+                // Login successful - redirect to admin dashboard
+                window.location.href = 'admin.html';
+            } else {
+                // Login failed - show error
+                errorDiv.textContent = 'Invalid username or password. Please try again.';
+                errorDiv.style.display = 'block';
+                
+                // Clear password field
+                document.getElementById('password').value = '';
+            }
+        });
+    </script>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2026 Verse One. All Rights Reserved.</p>
+            <p class="footer-tagline">Serving God's Word with Faith & Purpose.</p>
+        </div>
+    </footer>
+</body>
+</html>

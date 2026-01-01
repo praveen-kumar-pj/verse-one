@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verse One - God's Word for Your Home</title>
+    <link rel="icon" type="image/png" href="assets/verseone logo.png">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="assets/verseone logo.png" alt="Verse One Logo" class="site-logo">
+            <div class="header-text">
+                <h1>Verse One</h1>
+                <p class="tagline">God's Word for Your Home</p>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <a href="index.html" class="active">Home</a>
+        <a href="about.html">About Us</a>
+        <a href="cart.html">Cart <span id="cart-count" style="display: none; background: var(--color-sky-blue); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8rem; margin-left: 5px;"></span></a>
+        <a href="admin-login.html">Admin</a>
+    </nav>
+
+    <div class="container">
+        <h2>Bible Verse Boards</h2>
+        <p style="text-align: center; color: var(--color-text-light); margin-bottom: 2rem;">
+            Bring the Word of God into your home with our beautifully crafted verse boards
+        </p>
+        
+        <div id="products-container" class="products-grid">
+            <!-- Products will be loaded here -->
+        </div>
+    </div>
+
+    <!-- WhatsApp Float Button -->
+    <a href="#" id="whatsapp-float" class="whatsapp-float" aria-label="Contact us on WhatsApp">
+        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 0C7.163 0 0 7.163 0 16c0 2.825.744 5.477 2.044 7.771L0 32l8.434-2.044C10.603 31.256 13.163 32 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.163c-2.372 0-4.6-.62-6.539-1.704l-.451-.225-4.718 1.146 1.146-4.718-.225-.451C4.478 20.603 3.86 18.372 3.86 16 3.86 9.172 9.172 3.86 16 3.86S28.14 9.172 28.14 16 22.828 28.14 16 28.163zm8.785-10.758c-.248-.124-1.472-.726-1.7-.81-.228-.083-.393-.124-.558.124-.165.248-.64.81-.785.977-.144.166-.289.186-.537.062-.248-.124-1.048-.386-1.996-1.231-.738-.658-1.237-1.472-1.382-1.72-.144-.248-.015-.383.108-.507.112-.112.248-.289.372-.434.124-.144.165-.248.248-.414.083-.165.041-.31-.02-.434-.062-.124-.558-1.345-.765-1.844-.2-.488-.404-.422-.558-.431-.144-.009-.31-.009-.476-.009s-.434.062-.662.31c-.228.248-.871.851-1.062 1.086-.165.227-.331.477-.041.773.248.248 1.062 1.014 1.278 1.214.165.165.289.248.496.434.248.227.496.441.714.714.186.248.372.537.166.977-.2.434-.931 1.741-1.278 2.341-.331.578-.662 1.124-1.052 1.062-.248-.031-.434-.124-.931-.434-.496-.31-1.082-.558-1.526-.931-.496-.434-1.062-.977-1.701-1.557-.62-.558-1.237-1.146-1.701-1.926-.465-.785-.931-2.117.062-2.956.62-.558 1.382-1.31 1.926-1.557.496-.207.931-.165 1.237.062.31.227.931.744 1.052 1.086.124.331.124.931-.124 1.472-.248.558-1.052 1.926-1.237 2.117-.165.165-.331.248-.062.496.248.248 1.052 1.214 1.278 1.462.186.207.434.537.558.744.124.207.186.331.062.496-.124.165-.248.248-.434.331-.186.083-.434.165-.558.186-.124.02-.248.124-.331.248-.083.124-.041.289.062.434.103.144.434.744.931 1.214.579.579 1.062.977 1.526 1.278.496.331 1.052.558 1.527.931.496.372.558.434.744.744.165.289.248.434.558.744.372.372.931.931 1.701 1.146.744.207 1.31.165 1.557.124.248-.041.931-.496 1.062-1.052.124-.558.124-1.052.062-1.214-.062-.165-.165-.248-.372-.372z"/>
+        </svg>
+    </a>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2026 Verse One. All Rights Reserved.</p>
+            <p class="footer-tagline">Serving God's Word with Faith & Purpose.</p>
+        </div>
+    </footer>
+
+    <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Load and display products
+        function loadProducts() {
+            const products = getProducts();
+            const container = document.getElementById('products-container');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>No products available</h3><p>Check back soon for beautiful verse boards!</p></div>';
+                return;
+            }
+            
+            container.innerHTML = products.map(product => {
+                const imageSrc = product.imagePath || product.image || '';
+                const rating = product.rating || 0;
+                return `
+                <div class="product-card" onclick="window.location.href='product.html?id=${product.id}'" style="cursor: pointer;">
+                    <div class="product-image">
+                        <img src="${imageSrc}" alt="${product.title}" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size:3rem;color:var(--color-sky-blue);opacity:0.3;\'>✞</div>'">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${escapeHtml(product.title)}</h3>
+                        <div class="product-rating" style="font-size: 0.9rem; margin-bottom: 0.5rem;">${'⭐'.repeat(rating)}${'☆'.repeat(5 - rating)}</div>
+                        <p class="product-verse">"${escapeHtml(product.verseText)}"</p>
+                        ${product.category ? `<p style="color: var(--color-text-light); font-size: 0.85rem; margin-bottom: 0.5rem;"><strong>Category:</strong> ${escapeHtml(product.category)}</p>` : ''}
+                        ${product.size ? `<p style="color: var(--color-text-light); font-size: 0.8rem; margin-bottom: 0.5rem;">Size: ${escapeHtml(product.size)}</p>` : ''}
+                        <p class="product-price">${formatPrice(product.price)}</p>
+                        <button class="btn btn-primary" onclick="event.stopPropagation(); addToCartHandler('${product.id}', this)">Add to Cart</button>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+        
+        function addToCartHandler(productId, button) {
+            addToCart(productId, 1);
+            updateCartCount();
+            
+            // Show feedback
+            const originalText = button.textContent;
+            button.textContent = 'Added!';
+            button.style.backgroundColor = 'var(--color-gold-dark)';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.backgroundColor = '';
+            }, 1000);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Load products on page load
+        document.addEventListener('DOMContentLoaded', loadProducts);
+    </script>
+</body>
+</html>
