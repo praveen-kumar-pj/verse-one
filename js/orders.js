@@ -29,9 +29,9 @@ function saveOrders(orders) {
 /**
  * Add a new order
  * @param {Object} orderData
- * @returns {string} - The new order ID
+ * @returns {Promise<string>|string} - The new order ID
  */
-function addOrder(orderData) {
+async function addOrder(orderData) {
     const orders = getOrders();
     // Get highest order ID or start from 001
     let maxOrderId = 0;
@@ -41,7 +41,35 @@ function addOrder(orderData) {
     });
     const orderId = String(maxOrderId + 1).padStart(3, '0');
     
-    // Save each item as a separate order entry for CSV generation
+    // Calculate total
+    const total = orderData.items.reduce((sum, item) => sum + (item.totalPrice || item.price * item.quantity), 0);
+    
+    // Prepare order for Firestore (single order with all items)
+    const orderForFirestore = {
+        orderId: orderId,
+        customerName: orderData.customerName || '',
+        phone: orderData.phone || '',
+        email: orderData.email || '',
+        address: orderData.address || '',
+        items: orderData.items || [],
+        total: total,
+        date: new Date().toISOString(),
+        status: 'pending'
+    };
+    
+    // Try to save to Firestore first
+    if (typeof saveOrderToFirestore === 'function' && typeof isFirestoreAvailable === 'function' && isFirestoreAvailable()) {
+        try {
+            const firestoreId = await saveOrderToFirestore(orderForFirestore);
+            if (firestoreId) {
+                console.log('Order saved to Firestore with ID:', firestoreId);
+            }
+        } catch (error) {
+            console.error('Firestore order save failed, using localStorage:', error);
+        }
+    }
+    
+    // Save each item as a separate order entry for CSV generation (localStorage format)
     orderData.items.forEach(item => {
         const newOrder = {
             orderId: orderId,
@@ -55,6 +83,7 @@ function addOrder(orderData) {
     });
     
     saveOrders(orders);
+    console.log('Order saved to localStorage with ID:', orderId);
     return orderId;
 }
 

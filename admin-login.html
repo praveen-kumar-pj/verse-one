@@ -32,8 +32,11 @@
         
         <form id="login-form" class="login-form">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required autofocus>
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required autofocus placeholder="admin@verseone.com">
+                <small style="color: var(--color-text-light); font-size: 0.85rem; margin-top: 0.25rem; display: block;">
+                    Use your Firebase Auth email (or username for legacy login)
+                </small>
             </div>
             
             <div class="form-group">
@@ -51,33 +54,58 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/nav.js"></script>
     <script>
         // Redirect if already logged in
-        document.addEventListener('DOMContentLoaded', function() {
-            redirectIfLoggedIn();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await redirectIfLoggedIn();
         });
         
         // Handle login form submission
-        document.getElementById('login-form').addEventListener('submit', function(e) {
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData(e.target);
-            const username = formData.get('username');
+            const email = formData.get('email') || formData.get('username'); // Support both
             const password = formData.get('password');
             
             const errorDiv = document.getElementById('login-error');
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
             
-            if (login(username, password)) {
-                // Login successful - redirect to admin dashboard
-                window.location.href = 'admin.html';
-            } else {
-                // Login failed - show error
-                errorDiv.textContent = 'Invalid username or password. Please try again.';
-                errorDiv.style.display = 'block';
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Logging in...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const result = await login(email, password);
                 
-                // Clear password field
-                document.getElementById('password').value = '';
+                if (result.success) {
+                    // Login successful - redirect to admin dashboard
+                    window.location.href = 'admin.html';
+                } else {
+                    // Login failed - show error
+                    errorDiv.textContent = result.error || 'Invalid email or password. Please try again.';
+                    errorDiv.style.display = 'block';
+                    
+                    // Clear password field
+                    document.getElementById('password').value = '';
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                }
+            } catch (error) {
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                errorDiv.style.display = 'block';
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
             }
         });
     </script>

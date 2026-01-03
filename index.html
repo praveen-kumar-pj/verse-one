@@ -19,10 +19,19 @@
     </header>
 
     <nav>
-        <a href="index.html" class="active">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="cart.html">Cart <span id="cart-count" style="display: none; background: var(--color-sky-blue); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8rem; margin-left: 5px;"></span></a>
-        <a href="admin-login.html">Admin</a>
+        <div class="nav-wrapper">
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html" class="active">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="cart.html">Cart <span id="cart-count" style="display: none; background: var(--color-sky-blue); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8rem; margin-left: 5px;"></span></a>
+                <a href="admin-login.html">Admin</a>
+            </div>
+        </div>
     </nav>
 
     <div class="container">
@@ -34,6 +43,58 @@
         <div id="products-container" class="products-grid">
             <!-- Products will be loaded here -->
         </div>
+        
+        <!-- Testimonials Section -->
+        <section class="testimonials-section">
+            <h2 style="text-align: center; margin-bottom: 2rem;">What Our Customers Say</h2>
+            <div class="testimonials-container">
+                <div class="testimonials-track" id="testimonials-track">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="testimonial-text">"These verse boards have brought so much peace and inspiration to our home. The quality is exceptional and the verses are beautifully displayed. Highly recommend!"</p>
+                            <p class="testimonial-author">- Sarah M., Chennai</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="testimonial-text">"Perfect gift for my sister's new home. The board looks elegant and the verse reminds us of God's love daily. Thank you Verse One!"</p>
+                            <p class="testimonial-author">- John D., Bangalore</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="testimonial-text">"Absolutely love my Psalm 23:1 board! It's become the focal point of our living room. The craftsmanship is outstanding and it brings comfort every time I see it."</p>
+                            <p class="testimonial-author">- Maria L., Mumbai</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="testimonial-text">"Beautiful, meaningful, and well-made. These verse boards are exactly what we needed to create a God-centered home. Couldn't be happier!"</p>
+                            <p class="testimonial-author">- David K., Delhi</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="testimonial-text">"The John 3:16 board is a daily reminder of God's incredible love. It's beautifully crafted and has become a conversation starter with visitors."</p>
+                            <p class="testimonial-author">- Priya S., Hyderabad</p>
+                        </div>
+                    </div>
+                    <!-- Duplicate for seamless loop -->
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="testimonial-text">"These verse boards have brought so much peace and inspiration to our home. The quality is exceptional and the verses are beautifully displayed. Highly recommend!"</p>
+                            <p class="testimonial-author">- Sarah M., Chennai</p>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p class="testimonial-text">"Perfect gift for my sister's new home. The board looks elegant and the verse reminds us of God's love daily. Thank you Verse One!"</p>
+                            <p class="testimonial-author">- John D., Bangalore</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- WhatsApp Float Button -->
@@ -50,6 +111,13 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK (for future use) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firestore-products.js"></script>
     <script src="js/products.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/main.js"></script>

@@ -15,7 +15,7 @@ function formatPrice(price) {
  * Initialize WhatsApp float button
  * @param {string} phoneNumber - WhatsApp number (without +91)
  */
-function initWhatsAppFloat(phoneNumber = '8682892798') {
+function initWhatsAppFloat(phoneNumber = '9876543210') {
     const whatsappFloat = document.getElementById('whatsapp-float');
     if (!whatsappFloat) return;
     

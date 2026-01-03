@@ -41,31 +41,104 @@ function loadAdminProducts() {
 
 // Store uploaded image data
 let uploadedImageData = null;
+let uploadedImageFile = null; // Store the actual File object
+let uploadedImageUrl = null; // Store Firebase Storage URL
 
 /**
  * Handle image upload preview
  */
-function handleImageUpload(event) {
+async function handleImageUpload(event) {
     const file = event.target.files[0];
     if (!file) {
         uploadedImageData = null;
+        uploadedImageFile = null;
+        uploadedImageUrl = null;
         updateImagePreview(null);
         return;
     }
     
-    if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        event.target.value = '';
-        return;
+    // Validate file
+    if (typeof validateImageFile === 'function') {
+        const validation = validateImageFile(file);
+        if (!validation.valid) {
+            alert(validation.error);
+            event.target.value = '';
+            return;
+        }
+    } else {
+        // Fallback validation
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file');
+            event.target.value = '';
+            return;
+        }
     }
     
+    uploadedImageFile = file;
+    
+    // Show preview immediately (base64 for preview)
     const reader = new FileReader();
     reader.onload = function(e) {
-        uploadedImageData = e.target.result; // Base64 data URL
+        uploadedImageData = e.target.result; // Base64 data URL for preview
         updateImagePreview(uploadedImageData);
+        
+        // Try to upload to Firebase Storage if available
+        if (typeof uploadImageToStorage === 'function' && isStorageAvailable()) {
+            uploadImageToStorageAsync(file, editingProductId);
+        }
     };
     reader.readAsDataURL(file);
 }
+
+/**
+ * Upload image to Firebase Storage asynchronously
+ * @param {File} file
+ * @param {string} productId
+ */
+async function uploadImageToStorageAsync(file, productId = null) {
+    if (!isStorageAvailable() || typeof uploadImageToStorage !== 'function') {
+        return;
+    }
+    
+    try {
+        // Show upload progress
+        const preview = document.getElementById('image-preview');
+        if (preview) {
+            const progressDiv = document.createElement('div');
+            progressDiv.id = 'upload-progress';
+            progressDiv.style.cssText = 'position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px; border-radius: 4px; font-size: 0.8rem; text-align: center;';
+            progressDiv.textContent = 'Uploading...';
+            preview.style.position = 'relative';
+            preview.appendChild(progressDiv);
+        }
+        
+        // Upload to Firebase Storage
+        uploadedImageUrl = await uploadImageToStorage(file, productId, (progress) => {
+            const progressDiv = document.getElementById('upload-progress');
+            if (progressDiv) {
+                progressDiv.textContent = `Uploading... ${Math.round(progress)}%`;
+            }
+        });
+        
+        // Remove progress indicator
+        const progressDiv = document.getElementById('upload-progress');
+        if (progressDiv) {
+            progressDiv.remove();
+        }
+        
+        console.log('Image uploaded to Firebase Storage:', uploadedImageUrl);
+    } catch (error) {
+        console.error('Failed to upload image to Firebase Storage, using base64 fallback:', error);
+        // Remove progress indicator
+        const progressDiv = document.getElementById('upload-progress');
+        if (progressDiv) {
+            progressDiv.remove();
+        }
+        // Will use base64 fallback
+    }
+}
+
+// isStorageAvailable is defined in firestore-storage.js
 
 /**
  * Update image preview
@@ -84,11 +157,37 @@ function updateImagePreview(imageData) {
 /**
  * Handle form submission for adding/editing products
  */
-function handleProductFormSubmit(e) {
+async function handleProductFormSubmit(e) {
     e.preventDefault();
     
     const formData = new FormData(e.target);
     const imageUrl = formData.get('image');
+    
+    // Determine image URL/Path
+    let finalImagePath = '';
+    let finalImageUrl = '';
+    
+    // Priority: Firebase Storage URL > Uploaded base64 > Manual URL > Existing
+    if (uploadedImageUrl) {
+        // Use Firebase Storage URL (best option)
+        finalImagePath = uploadedImageUrl;
+        finalImageUrl = uploadedImageUrl;
+    } else if (uploadedImageData) {
+        // Use base64 data URL (fallback)
+        finalImagePath = uploadedImageData;
+        finalImageUrl = uploadedImageData;
+    } else if (imageUrl) {
+        // Use manual URL input
+        finalImagePath = imageUrl;
+        finalImageUrl = imageUrl;
+    } else if (editingProductId) {
+        // Preserve existing image when editing
+        const existingProduct = getProductById(editingProductId);
+        if (existingProduct) {
+            finalImagePath = existingProduct.imagePath || existingProduct.image || '';
+            finalImageUrl = existingProduct.image || existingProduct.imagePath || '';
+        }
+    }
     
     const productData = {
         title: formData.get('title'),
@@ -98,15 +197,48 @@ function handleProductFormSubmit(e) {
         rating: parseInt(formData.get('rating')) || 5,
         price: parseFloat(formData.get('price')),
         description: formData.get('description'),
-        image: imageUrl || '', // Keep image URL field for compatibility
-        imagePath: uploadedImageData || '', // Store base64 data URL
+        image: finalImageUrl || '',
+        imagePath: finalImagePath || '',
         reviews: editingProductId ? (getProductById(editingProductId)?.reviews || []) : []
     };
     
-    // Use uploaded image if available, otherwise use URL
-    if (!productData.imagePath && imageUrl) {
-        productData.imagePath = imageUrl;
+    // Ensure we always have image data if a file was uploaded
+    if (uploadedImageFile && !productData.imagePath && !productData.image) {
+        // Fallback to base64 if nothing else worked
+        if (uploadedImageData) {
+            productData.imagePath = uploadedImageData;
+            productData.image = uploadedImageData;
+            console.log('Using base64 image data as fallback');
+        }
     }
+    
+    // If we have a new file but no Firebase URL yet, upload it now
+    if (uploadedImageFile && !uploadedImageUrl && isStorageAvailable() && typeof uploadImageToStorage === 'function') {
+        try {
+            console.log('Uploading image to Firebase Storage before saving product...');
+            // Upload synchronously before saving product
+            const tempId = editingProductId || 'temp';
+            uploadedImageUrl = await uploadImageToStorage(uploadedImageFile, tempId);
+            productData.imagePath = uploadedImageUrl;
+            productData.image = uploadedImageUrl;
+            console.log('Image uploaded successfully:', uploadedImageUrl);
+        } catch (error) {
+            console.error('Error uploading image during save:', error);
+            // Continue with base64 fallback - ensure we still have the data
+            if (uploadedImageData) {
+                productData.imagePath = uploadedImageData;
+                productData.image = uploadedImageData;
+                console.log('Using base64 fallback for image');
+            }
+        }
+    }
+    
+    // Debug: Log what image data we're saving
+    console.log('Saving product with image data:', {
+        image: productData.image ? 'Present' : 'Missing',
+        imagePath: productData.imagePath ? 'Present' : 'Missing',
+        imageLength: productData.image ? productData.image.length : 0
+    });
     
     // Validation
     if (!productData.title || !productData.verseText || !productData.price || !productData.category || !productData.size) {
@@ -115,26 +247,41 @@ function handleProductFormSubmit(e) {
     }
     
     if (editingProductId) {
-        // Update existing product - preserve existing image if no new one uploaded
+        // If we're updating and have a new image, delete old Firebase Storage image
         const existingProduct = getProductById(editingProductId);
-        if (!productData.imagePath && existingProduct) {
-            productData.imagePath = existingProduct.imagePath || existingProduct.image || '';
+        if (existingProduct && uploadedImageUrl && typeof deleteImageFromStorage === 'function') {
+            const oldImageUrl = existingProduct.imagePath || existingProduct.image;
+            if (oldImageUrl && oldImageUrl !== uploadedImageUrl && oldImageUrl.includes('firebasestorage.googleapis.com')) {
+                // Delete old image asynchronously (don't wait)
+                deleteImageFromStorage(oldImageUrl).catch(err => console.error('Error deleting old image:', err));
+            }
         }
         
-        const success = updateProduct(editingProductId, productData);
-        if (success) {
-            showSuccessMessage('Product updated successfully!', document.querySelector('.admin-form').parentElement);
-            resetProductForm();
-            loadAdminProducts();
-        } else {
-            alert('Error updating product');
+        try {
+            const success = await updateProduct(editingProductId, productData);
+            if (success) {
+                showSuccessMessage('Product updated successfully!', document.querySelector('.admin-form').parentElement);
+                resetProductForm();
+                loadAdminProducts();
+            } else {
+                showErrorMessage('Error updating product. Product not found.', document.querySelector('.admin-form').parentElement);
+            }
+        } catch (error) {
+            console.error('Error updating product:', error);
+            showErrorMessage('Error updating product. Please try again.', document.querySelector('.admin-form').parentElement);
         }
     } else {
         // Add new product
-        addProduct(productData);
-        showSuccessMessage('Product added successfully!', document.querySelector('.admin-form').parentElement);
-        resetProductForm();
-        loadAdminProducts();
+        try {
+            await addProduct(productData);
+            showSuccessMessage('Product added successfully!', document.querySelector('.admin-form').parentElement);
+            resetProductForm();
+            loadAdminProducts();
+        } catch (error) {
+            console.error('Error adding product:', error);
+            console.error('Error details:', error.message, error.code);
+            showErrorMessage(`Error adding product: ${error.message || 'Please try again.'}`, document.querySelector('.admin-form').parentElement);
+        }
     }
 }
 
@@ -147,7 +294,10 @@ function editProduct(productId) {
     if (!product) return;
     
     editingProductId = productId;
-    uploadedImageData = product.imagePath || product.image || null;
+    const existingImage = product.imagePath || product.image || '';
+    uploadedImageData = existingImage;
+    uploadedImageFile = null;
+    uploadedImageUrl = (existingImage && existingImage.includes('firebasestorage.googleapis.com')) ? existingImage : null;
     
     // Populate form
     document.getElementById('product-title').value = product.title || '';
@@ -160,7 +310,7 @@ function editProduct(productId) {
     document.getElementById('product-image').value = product.image || '';
     
     // Update image preview
-    updateImagePreview(uploadedImageData);
+    updateImagePreview(existingImage);
     
     // Update form heading and button
     const formHeading = document.querySelector('.admin-form h2');
@@ -200,7 +350,12 @@ function resetProductForm() {
 /**
  * Load and display orders in admin dashboard
  */
-function loadOrders() {
+async function loadOrders() {
+    // Sync orders from Firestore if available
+    if (typeof syncOrdersFromFirestore === 'function') {
+        await syncOrdersFromFirestore();
+    }
+    
     const orders = getOrders();
     const container = document.getElementById('orders-container');
     
@@ -300,26 +455,42 @@ function downloadOrderCSV(orderId) {
  * Confirm and delete product
  * @param {string} productId
  */
-function deleteProductConfirm(productId) {
+async function deleteProductConfirm(productId) {
     if (!confirm('Are you sure you want to delete this product?')) {
         return;
     }
     
-    const success = deleteProduct(productId);
-    if (success) {
-        showSuccessMessage('Product deleted successfully!', document.getElementById('admin-products').parentElement);
-        loadAdminProducts();
-    } else {
-        alert('Error deleting product');
+    try {
+        // Get product to delete associated image
+        const product = getProductById(productId);
+        
+        const success = await deleteProduct(productId);
+        if (success) {
+            // Delete associated image from Firebase Storage if exists
+            if (product && typeof deleteImageFromStorage === 'function') {
+                const imageUrl = product.imagePath || product.image;
+                if (imageUrl && imageUrl.includes('firebasestorage.googleapis.com')) {
+                    deleteImageFromStorage(imageUrl).catch(err => console.error('Error deleting product image:', err));
+                }
+            }
+            
+            showSuccessMessage('Product deleted successfully!', document.getElementById('admin-products').parentElement);
+            loadAdminProducts();
+        } else {
+            alert('Error deleting product. Product not found.');
+        }
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Error deleting product. Please try again.');
     }
 }
 
 /**
  * Logout admin
  */
-function handleLogout() {
+async function handleLogout() {
     if (confirm('Are you sure you want to logout?')) {
-        logout();
+        await logout();
         window.location.href = 'admin-login.html';
     }
 }
@@ -336,10 +507,20 @@ function escapeHtml(text) {
 }
 
 // Initialize admin dashboard on load
-document.addEventListener('DOMContentLoaded', function() {
-    protectAdminPage();
+document.addEventListener('DOMContentLoaded', async function() {
+    await protectAdminPage();
+    
+    // Initialize Firestore sync
+    if (typeof initializeProductSync === 'function') {
+        await initializeProductSync();
+    }
+    
+    if (typeof initializeOrderSync === 'function') {
+        await initializeOrderSync();
+    }
+    
     loadAdminProducts();
-    loadOrders();
+    await loadOrders();
     
     const productForm = document.getElementById('product-form');
     if (productForm) {

@@ -95,12 +95,31 @@ function saveProducts(products) {
 /**
  * Add a new product
  * @param {Object} product
- * @returns {string} - The new product ID
+ * @returns {Promise<string>|string} - The new product ID
  */
-function addProduct(product) {
+async function addProduct(product) {
     const products = getProducts();
-    const newId = Date.now().toString();
     
+    // Try to save to Firestore first
+    if (typeof saveProductToFirestore === 'function' && typeof isFirestoreAvailable === 'function' && isFirestoreAvailable()) {
+        try {
+            const firestoreId = await saveProductToFirestore(product);
+            if (firestoreId) {
+                // Sync back to localStorage
+                const newProduct = { ...product, id: firestoreId };
+                products.push(newProduct);
+                saveProducts(products);
+                console.log('Product saved to Firestore with ID:', firestoreId);
+                return firestoreId;
+            }
+        } catch (error) {
+            console.error('Firestore add failed, using localStorage:', error);
+            console.error('Firestore error details:', error.message, error.code);
+        }
+    }
+    
+    // Fallback to localStorage
+    const newId = Date.now().toString();
     const newProduct = {
         ...product,
         id: newId
@@ -108,6 +127,7 @@ function addProduct(product) {
     
     products.push(newProduct);
     saveProducts(products);
+    console.log('Product saved to localStorage with ID:', newId);
     return newId;
 }
 
@@ -115,14 +135,34 @@ function addProduct(product) {
  * Update an existing product
  * @param {string} id
  * @param {Object} updates
- * @returns {boolean} - true if product was found and updated
+ * @returns {Promise<boolean>|boolean} - true if product was found and updated
  */
-function updateProduct(id, updates) {
+async function updateProduct(id, updates) {
     const products = getProducts();
     const index = products.findIndex(p => p.id === id);
     
     if (index === -1) return false;
     
+    // Try to update in Firestore first
+    if (typeof updateProductInFirestore === 'function') {
+        try {
+            const firestoreSuccess = await updateProductInFirestore(id, updates);
+            if (firestoreSuccess) {
+                // Sync to localStorage
+                products[index] = {
+                    ...products[index],
+                    ...updates,
+                    id: id
+                };
+                saveProducts(products);
+                return true;
+            }
+        } catch (error) {
+            console.error('Firestore update failed, using localStorage:', error);
+        }
+    }
+    
+    // Fallback to localStorage
     products[index] = {
         ...products[index],
         ...updates,
@@ -136,10 +176,21 @@ function updateProduct(id, updates) {
 /**
  * Delete a product
  * @param {string} id
- * @returns {boolean} - true if product was found and deleted
+ * @returns {Promise<boolean>|boolean} - true if product was found and deleted
  */
-function deleteProduct(id) {
+async function deleteProduct(id) {
     const products = getProducts();
+    
+    // Try to delete from Firestore first
+    if (typeof deleteProductFromFirestore === 'function') {
+        try {
+            await deleteProductFromFirestore(id);
+        } catch (error) {
+            console.error('Firestore delete failed, using localStorage:', error);
+        }
+    }
+    
+    // Delete from localStorage
     const filteredProducts = products.filter(p => p.id !== id);
     
     if (filteredProducts.length === products.length) {
@@ -152,3 +203,14 @@ function deleteProduct(id) {
 
 // Initialize products on load
 initializeProducts();
+
+// Initialize Firestore sync if available (will run after Firebase loads)
+if (typeof window !== 'undefined') {
+    window.addEventListener('load', function() {
+        setTimeout(async () => {
+            if (typeof initializeProductSync === 'function') {
+                await initializeProductSync();
+            }
+        }, 1000); // Wait for Firebase to initialize
+    });
+}

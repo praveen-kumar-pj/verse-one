@@ -19,11 +19,20 @@
     </header>
 
     <nav>
-        <a href="index.html">Home</a>
-        <a href="about.html">About Us</a>
-        <a href="cart.html">Cart</a>
-        <a href="admin.html" class="active">Admin Dashboard</a>
-        <a href="#" onclick="handleLogout(); return false;" style="color: #C0392B;">Logout</a>
+        <div class="nav-wrapper">
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="cart.html">Cart</a>
+                <a href="admin.html" class="active">Admin Dashboard</a>
+                <a href="#" onclick="handleLogout(); return false;" style="color: #C0392B;">Logout</a>
+            </div>
+        </div>
     </nav>
 
     <div class="container">
@@ -124,10 +133,38 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/firestore-storage.js"></script>
+    <script src="js/firestore-products.js"></script>
+    <script src="js/firestore-orders.js"></script>
     <script src="js/products.js"></script>
     <script src="js/orders.js"></script>
+    <script src="js/nav.js"></script>
     <script src="js/main.js"></script>
     <script src="js/admin.js"></script>
+    <script>
+        // Protect admin page with Firebase Auth
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Wait a bit for Firebase to initialize
+            setTimeout(async () => {
+                await protectAdminPage();
+                
+                // Set up auth state listener
+                if (window.firebaseAuth) {
+                    window.firebaseAuth.onAuthStateChanged((user) => {
+                        if (!user && window.location.pathname.includes('admin.html')) {
+                            window.location.href = 'admin-login.html';
+                        }
+                    });
+                }
+            }, 500);
+        });
+    </script>
 </body>
 </html>
